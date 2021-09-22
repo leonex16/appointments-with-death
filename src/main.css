@@ -1,0 +1,22 @@
+:root {
+  --margin-defalut: .5rem;
+  --padding-defalut: .5rem;
+}
+* {
+  font-family: var(--font-family);
+  color: var(--text-color);
+  margin: 0;
+  padding: 0;
+}
+
+html, main, div[role="main"] {
+  background-color: var(--primary-color-text);
+  min-width: 100vw;
+  max-width: 100vw;
+  min-height: 100vh;
+  max-height: 100vh;
+}
+
+div[role="main"] {
+  padding: var(--padding-defalut);
+}
