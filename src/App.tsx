@@ -23,40 +23,70 @@ function App() {
     }, []);
   };
 
-  const addDay = (date: Date) => {
-    const dayInMs = 1000 * 60 * 60 * 24;
-    return new Date(date.getTime() + dayInMs);
-  };
+  // const addDay = (date: Date) => {
+  //   const dayInMs = 1000 * 60 * 60 * 24;
+  //   return new Date(date.getTime() + dayInMs);
+  // };
 
   const filterAppointmentsByMoth = (appointments: any, month: Date) => {
     return appointments.filter((appointment: any) => appointment?.date.getMonth() === month.getMonth());
   };
 
-  const getDatesBeetweenTwoDates = (firstDate: Date, lastDate: Date) => {
-    const dates: Date[] = [];
-    debugger;
-    while (firstDate.getTime() < lastDate.getTime()) {
-      dates.push(lastDate);
-      lastDate = addDay(lastDate);
-      break;
+  const getHoursOfDay = (date: string, hourToExclude: number[]) => {
+
+  };
+
+  const getDatesOfMonth = (lastDateOfMonth: Date) => {
+    const dates: string[] = [];
+    const dd = lastDateOfMonth.getDate();
+    const mm = (lastDateOfMonth.getMonth() + 1).toString().padStart(2,'0');
+    const yy = lastDateOfMonth.getFullYear().toString();
+
+    for (let i = 0; i < dd; i++) {
+      const datesHours = [];
+      const dd = (i + 1).toString().padStart(2,'0');
+      
+      // for (let j = 0; j <= 24; j++) {
+      //   const hh = j.toString().padStart(2,'0');
+      //   datesHours.push(`${yy}/${mm}/${dd} ${hh}:00:00`);
+      // };
+
+      dates.push(`${yy}/${mm}/${dd}`);
     }
-    
+
     return dates;
   };
 
   const generateAppointmentsMonth = (month: Date) => {
     const yyyy = month.getFullYear();
     const mm = month.getMonth();
-    const firstDateOfMonth = new Date(yyyy,mm,1,0,0,0,0);
-    const lastDateOfMonth = new Date(yyyy,mm + 1,0,0,0,0,0);
-    console.log(getDatesBeetweenTwoDates(firstDateOfMonth, lastDateOfMonth))
+    const lastDateOfMonth = new Date(yyyy,mm + 1,0);
+
+    return getDatesOfMonth(lastDateOfMonth);
   };
 
 
   useEffect(() => {
     const filterDatesByMonth = filterAppointmentsByMoth(data, month);
     const agrupdationDates = groupAppointmentsByDay(filterDatesByMonth);
-    generateAppointmentsMonth(month);
+    const datesOfMonth = generateAppointmentsMonth(month);
+
+    const datesOfMonthFiltered = datesOfMonth.filter((date: string) => {
+      const dateId = date.replaceAll('/', '');
+
+      Object.values(agrupdationDates).forEach((appointment: any) => {
+        const appointmentFound = appointment[dateId];
+        if ( appointmentFound !== undefined ) {
+          const hoursAppointments = appointmentFound.map(({date}: {date: Date}) => date.getHours());
+          console.log('Existe', date, hoursAppointments);
+
+        }
+      })
+
+
+      return date;
+    });
+    console.log(agrupdationDates)
     setProducts(data);
   }, []);
 
