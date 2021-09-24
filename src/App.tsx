@@ -1,34 +1,46 @@
 import React, { useEffect, useState } from 'react';
-
 import { CalendarMonth } from './components/CalendarMonth';
 import { TableAppointments } from './components/TableAppointments';
+import { Button } from 'primereact/button';
+
+import { appointmentsService } from './service/appointmentsService';
 
 import { filterAppointmentsByMoth } from './utils/filterAppointmentsByMoth';
 import { generateAppointmentsMonth } from './utils/generateAppointmentsMonth';
 import { groupAppointmentsByDate } from './utils/groupAppointmentsByDate';
 import { datesOfMonthFilterByAppointmentsBusy } from './utils/datesOfMonthFilterByAppointmentsBusy';
-import { transformateDataTable } from './utils/transformateDataTable';
-import { Button } from 'primereact/button';
-import { appointmentsService } from './service/appointmentsService';
+import { transformedDataToDataTable } from './utils/transformedDataToDataTable';
+
+import { GroupAppointmentsByDate } from './models/GroupAppointmentsByDate';
+import { DatesOfMonthFilterByAppointmentsBusy } from './models/DatesOfMonthFilterByAppointmentsBusy';
+import { ValueDataTable } from './models/DataDataTable';
+import { Appointment } from './models/Appointment';
+import { Unsubscribe } from '@firebase/firestore';
 
 function App() {
   const [ month, setMonth ] = useState<Date | undefined>(undefined);
+  const [ appointments, setAppointments ] = useState<Appointment[]>([])
   const [ appointmentsAvailable, setAppointmentsAvailable ] = useState<any>([]);
   const _appointmentsService = appointmentsService;
 
-  useEffect(() => {
-    (async () => {
-      console.log(await _appointmentsService.getAll());
-    })();
+  const initFC = async () => {
+    setAppointments(await _appointmentsService.getAll());
     if (month === undefined) return;
 
-    const filteredDatesByMonth = filterAppointmentsByMoth(data, month);
-    const datesOfMonth = generateAppointmentsMonth(month);
-    const agrupdationDates = groupAppointmentsByDate(filteredDatesByMonth);
-    const datesOfMonthFiltered = datesOfMonthFilterByAppointmentsBusy(datesOfMonth, agrupdationDates);
-    const dataTransformated = transformateDataTable(datesOfMonthFiltered);
+    const filteredDatesByMonth: Appointment[] = filterAppointmentsByMoth(appointments, month);
+    const datesOfMonth: string[] = generateAppointmentsMonth(month);
+    const agrupationDates: GroupAppointmentsByDate[] = groupAppointmentsByDate(filteredDatesByMonth);
+    const datesOfMonthFiltered: DatesOfMonthFilterByAppointmentsBusy[] = datesOfMonthFilterByAppointmentsBusy(datesOfMonth, agrupationDates);
+    const transformedData: ValueDataTable[] = transformedDataToDataTable(datesOfMonthFiltered);
 
-    setAppointmentsAvailable(dataTransformated);
+    setAppointmentsAvailable(transformedData);
+  };
+
+  useEffect(() => {
+    (async () => await initFC())();
+    const subscriber = _appointmentsService.getAllStream().then(subs => subs);
+    console.log(subscriber)
+
   }, [ month ]);
 
   return (
@@ -38,7 +50,7 @@ function App() {
           month !== undefined &&
           <Button className="header-container__btn-back p-button-rounded p-button-outlined" icon="pi pi-arrow-left" onClick={() => setMonth(undefined)} />
         }
-        <h1 style={{ color: 'var(--text-color)'}}>💀💀💀 Appointment With The Death 💀💀💀</h1>
+        <h1 style={{ color: 'var(--text-color)' }}>💀🕺💀 Dancing with Death 💀💃💀</h1>
       </header>
       {
         month === undefined
@@ -58,48 +70,3 @@ function App() {
 }
 
 export default App
-
-var data = [
-  {
-    "id": "1",
-    "counter": "1", // no va
-    "date": new Date(2021, 1, 1, 22),
-    "user": "sntruhcokb"
-  },
-  {
-    "id": "2",
-    "counter": "2", // no va
-    "date": new Date(2021, 1, 2, 20),
-    "user": "sntruhcokb"
-  },
-  {
-    "id": "10",
-    "counter": "10", // no va
-    "date": new Date(2021, 1, 3, 0),
-    "user": "sntruhcokb"
-  },
-  {
-    "id": "3",
-    "counter": "3", // no va
-    "date": new Date(2021, 1, 1, 18),
-    "user": "sntruhcokb"
-  },
-  {
-    "id": "4",
-    "counter": "4", // no va
-    "date": new Date(2021, 1, 2, 16),
-    "user": "sntruhcokb"
-  },
-  {
-    "id": "5",
-    "counter": "5", // no va
-    "date": new Date(2021, 2, 1),
-    "user": "sntruhcokb"
-  },
-  {
-    "id": "6",
-    "counter": "5", // no va
-    "date": new Date(2021, 2, 2),
-    "user": "sntruhcokb"
-  },
-]

@@ -1,12 +1,11 @@
-import { Button } from 'primereact/button';
+import React, { useState } from 'react'
 import { Column } from 'primereact/column';
 import { DataTable } from 'primereact/datatable';
-import React, { useState } from 'react'
+
 import { ScheduleAppointment } from './ScheduleAppointment';
 
 interface TableAppointmentsProps {
   appointmentsAvailable: any[];
-  // setAppointmentsAvailable: React.Dispatch<React.SetStateAction<any[]>>;
 };
 
 export const TableAppointments = (props: TableAppointmentsProps) => {
@@ -21,7 +20,7 @@ export const TableAppointments = (props: TableAppointmentsProps) => {
         value={data.hoursAvailable}
       >
         <Column field="hoursAvailable" header="Hours available" body={hour => hour.slice(0, 5)} ></Column>
-        <Column field="scheduleAppointment" header="Schedule appointment" body={hour => <ScheduleAppointment date={new Date(`${data.date} ${hour}`)} />}></Column>
+        <Column field="scheduleAppointment" header="Schedule appointment" body={hour => <ScheduleAppointment date={new Date(`${data.date} ${hour}`)}/>}></Column>
       </DataTable>
     );
   };
@@ -29,7 +28,7 @@ export const TableAppointments = (props: TableAppointmentsProps) => {
   return (
     <DataTable
       scrollable
-      scrollHeight={'60vh'}
+      scrollHeight={'75vh'}
       value={appointmentsAvailable}
       onRowToggle={(e) => {
         setExpandedData(e.data);

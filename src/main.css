@@ -1,6 +1,6 @@
 :root {
-  --margin-defalut: .5rem;
-  --padding-defalut: .5rem;
+  --margin-default: .5rem;
+  --padding-default: .5rem;
 }
 * {
   font-family: var(--font-family);
@@ -10,14 +10,14 @@
 
 html, main, div[role="main"] {
   background-color: var(--primary-color-text);
-  min-width: calc(100vw - var(--padding-defalut));
-  max-width: calc(100vw - var(--padding-defalut));
+  min-width: calc(100vw - var(--padding-default));
+  max-width: calc(100vw - var(--padding-default));
   min-height: calc(100vh - 80px);
   max-height: calc(100vh - 80px);
 }
 
 div[role="main"] {
-  padding: var(--padding-defalut);
+  padding: var(--padding-default);
 }
 
 .header-container {

@@ -11,11 +11,11 @@ export const CalendarMonth = (props: CalendarMonthProps) => {
 
   return (
     <Calendar
-    inline
-    value={month}
-    onChange={(e: any) => setMonth(e.value)}
-    view="month"
-    yearRange="2020:2025"
-  />
+      inline
+      value={month}
+      onChange={(e: any) => setMonth(e.value)}
+      view="month"
+      yearRange="2020:2025"
+    />
   )
 }

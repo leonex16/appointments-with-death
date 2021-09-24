@@ -46,7 +46,7 @@ export const Calendar = () => {
       dateTemplate={dateTemplate}
       monthNavigatorTemplate={monthNavigatorTemplate}
       yearNavigatorTemplate={yearNavigatorTemplate}
-      yearRange="2010:2030"
+      yearRange="2020:2025"
       value={date}
       onChange={(e) => setDate(e.value)}
     ></CalendarPrime>
