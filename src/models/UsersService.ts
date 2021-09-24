@@ -4,5 +4,5 @@ import { User } from "./User";
 export interface UsersService {
   post: (user: User) => Promise<string>;
   getByEmail: (email: string) => Promise<{ user: User; userRef: QueryDocumentSnapshot<DocumentData>; } | undefined>;
-  addAppointment: (userId: string, appointmentPath: DocumentReference<DocumentData>) => Promise<void>;
+  addAppointment: (userId: string, userDataUpdated: any, appointmentRef: DocumentReference<DocumentData>) => Promise<void>;
 }

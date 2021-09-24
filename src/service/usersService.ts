@@ -28,9 +28,14 @@ const post = async (user: User) => {
   return userAdded.id;
 }
 
-const addAppointment = async (userId: string, appointmentRef: DocumentReference<DocumentData>) => {
+const addAppointment = async (userId: string, userDataUpdated: any, appointmentRef: DocumentReference<DocumentData>) => {
   const userRef = doc(firestoreDB, 'users', userId);
-  await updateDoc(userRef, { appointments: arrayUnion(appointmentRef) });
+  const { name, phoneNumber } = userDataUpdated;
+  await updateDoc(userRef, {
+    name,
+    phoneNumber,
+    appointments: arrayUnion(appointmentRef),
+  });
 };
 
 export const usersService: UsersService = { post, getByEmail, addAppointment };

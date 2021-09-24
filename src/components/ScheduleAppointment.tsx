@@ -20,6 +20,7 @@ export const ScheduleAppointment = (props: ScheduleAppointmentProps) => {
   const { date } = props;
   const toast = useRef(null);
   const [ isDialogVisible, setIsDialogVisible ] = useState(false);
+  const [ formSending, setFormSending ] = useState(false);
 
   const isValidFormSendAppointment = (formAppointment: any) => {
     if (isNaN(formAppointment[ 'phoneNumber' ])) return false;
@@ -33,6 +34,8 @@ export const ScheduleAppointment = (props: ScheduleAppointmentProps) => {
 
   const scheduleAppointment = (evt: FormEvent<HTMLFormElement>) => {
     evt.preventDefault();
+    setFormSending(true);
+
     const { name, phoneNumber, email, appointment } = (evt.target as any);
     const formAppointment = {
       name: name?.value?.trim(),
@@ -51,7 +54,9 @@ export const ScheduleAppointment = (props: ScheduleAppointmentProps) => {
     if (isValidForm === false) {
       toastMessage.severity = 'error';
       toastMessage.content = <ToastCustom summary={'Form Invalid'} detail={'Check the information entered, please 🥺👉👈'} />
-      return (toast.current! as any).show(toastMessage);
+      toast.current !== null && (toast.current as any).show(toastMessage);
+      setFormSending(false);
+      return;
     }
 
     const dtoUserAppointment: DTOUserAppointment = toDtoUserAppointment(formAppointment);
@@ -60,15 +65,16 @@ export const ScheduleAppointment = (props: ScheduleAppointmentProps) => {
       .then(() => {
         localStorage.setItem('lastScheduling', new Date().getTime().toString());
         setIsDialogVisible(false);
-        (toast.current! as any).show(toastMessage);
+        toast.current !== null && (toast.current as any).show(toastMessage);
+        setFormSending(false);
       })
       .catch((err) => {
         toastMessage.severity = 'error';
         toastMessage.content = <ToastCustom summary={'Ops!'} detail={'Sorry, we are having trouble 😥. Try again later 🥺👉👈'} />;
         console.error("SCHEDULE_APPOINTMENT: " + err);
-        return (toast.current! as any).show(toastMessage);
+        toast.current !== null && (toast.current as any).show(toastMessage);
+        setFormSending(false);
       });
-
   };
 
   const openDialog = () => {
@@ -76,7 +82,7 @@ export const ScheduleAppointment = (props: ScheduleAppointmentProps) => {
 
     if (
       lastScheduling === null ||
-      getDiffDates(new Date(), new Date(+lastScheduling)) > 1
+      getDiffDates(new Date(+lastScheduling), new Date()) > 1
     ) return setIsDialogVisible(true);
 
     const toastMessage: ToastMessage = {
@@ -96,6 +102,7 @@ export const ScheduleAppointment = (props: ScheduleAppointmentProps) => {
         setIsDialogVisible={setIsDialogVisible}
         onSubmit={scheduleAppointment}
         dateAppointment={date}
+        loading={formSending}
       />
       <Toast ref={toast} />
       <Button

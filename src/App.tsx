@@ -15,32 +15,51 @@ import { GroupAppointmentsByDate } from './models/GroupAppointmentsByDate';
 import { DatesOfMonthFilterByAppointmentsBusy } from './models/DatesOfMonthFilterByAppointmentsBusy';
 import { ValueDataTable } from './models/DataDataTable';
 import { Appointment } from './models/Appointment';
-import { Unsubscribe } from '@firebase/firestore';
+import { DocumentData, QuerySnapshot, Unsubscribe } from '@firebase/firestore';
+import { queryDocSnapToAppointment } from './utils/queryDocSnapToAppointment';
 
 function App() {
   const [ month, setMonth ] = useState<Date | undefined>(undefined);
-  const [ appointments, setAppointments ] = useState<Appointment[]>([])
-  const [ appointmentsAvailable, setAppointmentsAvailable ] = useState<any>([]);
+  const [ appointmentsRaw, setAppointmentsRaw ] = useState<Appointment[]>([])
+  const [ appointmentsAvailable, setAppointmentsAvailable ] = useState<ValueDataTable[]>([]);
   const _appointmentsService = appointmentsService;
 
-  const initFC = async () => {
-    setAppointments(await _appointmentsService.getAll());
-    if (month === undefined) return;
-
+  const transformedAppointments = (appointments: Appointment[], month: Date) => {
     const filteredDatesByMonth: Appointment[] = filterAppointmentsByMoth(appointments, month);
     const datesOfMonth: string[] = generateAppointmentsMonth(month);
     const agrupationDates: GroupAppointmentsByDate[] = groupAppointmentsByDate(filteredDatesByMonth);
     const datesOfMonthFiltered: DatesOfMonthFilterByAppointmentsBusy[] = datesOfMonthFilterByAppointmentsBusy(datesOfMonth, agrupationDates);
     const transformedData: ValueDataTable[] = transformedDataToDataTable(datesOfMonthFiltered);
 
-    setAppointmentsAvailable(transformedData);
+    return transformedData
   };
+
+  const initFC = async () => {
+    setAppointmentsRaw(await _appointmentsService.getAll());
+    if (month === undefined) return;
+    setAppointmentsAvailable(transformedAppointments(appointmentsRaw, month));
+  };
+
+  const observableAppointments = (qs: QuerySnapshot<DocumentData>) => {
+    if (month === undefined) return;
+    const appointments: Appointment[] = [];
+
+    qs.forEach(doc => appointments.push(queryDocSnapToAppointment(doc)));
+
+    setAppointmentsAvailable(transformedAppointments(appointments, month));
+  };
+
+  const resetStates = () => {
+    setAppointmentsAvailable([]);
+    setAppointmentsRaw([]);
+    setMonth(undefined);
+  }
 
   useEffect(() => {
     (async () => await initFC())();
-    const subscriber = _appointmentsService.getAllStream().then(subs => subs);
-    console.log(subscriber)
-
+    const unsubscribe = _appointmentsService.getAllStream(observableAppointments);
+    
+    return () => unsubscribe();
   }, [ month ]);
 
   return (
@@ -48,7 +67,7 @@ function App() {
       <header className="header-container p-col-12 p-text-center">
         {
           month !== undefined &&
-          <Button className="header-container__btn-back p-button-rounded p-button-outlined" icon="pi pi-arrow-left" onClick={() => setMonth(undefined)} />
+          <Button className="header-container__btn-back p-button-rounded p-button-outlined" icon="pi pi-arrow-left" onClick={resetStates} />
         }
         <h1 style={{ color: 'var(--text-color)' }}>💀🕺💀 Dancing with Death 💀💃💀</h1>
       </header>
@@ -61,7 +80,7 @@ function App() {
           )
           : (
             <section className="table-appointments-container p-col-12 p-shadow-10">
-              <TableAppointments appointmentsAvailable={appointmentsAvailable} />
+              <TableAppointments appointmentsAvailable={appointmentsAvailable} month={month} />
             </section>
           )
       }

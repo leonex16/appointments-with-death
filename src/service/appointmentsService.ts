@@ -1,4 +1,4 @@
-import { collection, DocumentData, getDocs, QueryDocumentSnapshot, addDoc, onSnapshot } from "@firebase/firestore";
+import { collection, DocumentData, getDocs, addDoc, onSnapshot, QuerySnapshot } from "@firebase/firestore";
 
 import { firestoreDB } from "../shared/firestoreDB";
 
@@ -6,8 +6,8 @@ import { usersService } from "./usersService";
 
 import { Appointment } from "../models/Appointment";
 import { AppointmentsService } from "../models/AppointmentsService";
-import { DocAppointment } from "../models/DocAppointment";
 import { DTOUserAppointment } from "../models/DTOUserAppointment";
+import { queryDocSnapToAppointment } from "../utils/queryDocSnapToAppointment";
 
 const _userService = usersService;
 const appointmentsRef = collection(firestoreDB, '/appointments');
@@ -16,19 +16,13 @@ const getAll = async () => {
   const querySnap = await getDocs(appointmentsRef);
   const appointments: Appointment[] = [];
 
-  querySnap.forEach(doc => appointments.push(docToAppointment(doc)));
+  querySnap.forEach(doc => appointments.push(queryDocSnapToAppointment(doc)));
 
   return appointments;
 };
 
-const getAllStream = async () => {
-  return onSnapshot(appointmentsRef, (qs) => {
-    const appointments: Appointment[] = [];
-
-    qs.forEach(doc => appointments.push(docToAppointment(doc)));
-  
-    return appointments;
-  });
+const getAllStream = (cb: (qs: QuerySnapshot<DocumentData>) => void) => {
+  return onSnapshot(appointmentsRef, cb);
 };
 
 const post = async (dtoUserAppointment: DTOUserAppointment) => {
@@ -36,18 +30,9 @@ const post = async (dtoUserAppointment: DTOUserAppointment) => {
   const appointmentRef = await addDoc(appointmentsRef, { dateAppointment: dateAppointment })
   const existUser = await _userService.getByEmail(email);
 
-  if (existUser === undefined) {
-    await _userService.post({ appointments: [ appointmentRef ], email, name, phoneNumber });
-  } else {
-    _userService.addAppointment(existUser.user.id!, appointmentRef);
-  };
+  (existUser === undefined)
+    ? await _userService.post({ appointments: [ appointmentRef ], email, name, phoneNumber })
+    : await _userService.addAppointment(existUser.user.id!, { name, phoneNumber }, appointmentRef);
 };
 
 export const appointmentsService: AppointmentsService = { getAll, getAllStream, post };
-
-function docToAppointment(doc: QueryDocumentSnapshot<DocumentData>) {
-  const { dateAppointment } = doc.data() as DocAppointment;
-  const dateAppointmentFormatted = new Date(dateAppointment.seconds * 1000);
-
-  return { dateAppointment: dateAppointmentFormatted } as Appointment;
-};

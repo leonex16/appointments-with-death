@@ -8,11 +8,12 @@ interface FormSendAppointmentProps {
   isDialogVisible: boolean;
   setIsDialogVisible: React.Dispatch<React.SetStateAction<boolean>>;
   onSubmit: (evt: FormEvent<HTMLFormElement>) => void;
-  dateAppointment: Date
+  dateAppointment: Date,
+  loading: boolean;
 };
 
 export const FormSendAppointment = (props: FormSendAppointmentProps) => {
-  const { isDialogVisible, setIsDialogVisible, onSubmit, dateAppointment } = props;
+  const { isDialogVisible, setIsDialogVisible, onSubmit, dateAppointment, loading } = props;
 
   return (
     <Dialog
@@ -54,7 +55,7 @@ export const FormSendAppointment = (props: FormSendAppointmentProps) => {
           <label htmlFor="appointment">Appointment</label>
         </span>
         <span className="form-group ">
-          <Button type="submit" label="Submit" style={{ fontWeight: 'bold' }} />
+          <Button type="submit" label="Submit" icon="pi pi-check" loading={loading} style={{ fontWeight: 'bold' }} />
         </span>
       </form>
     </Dialog>

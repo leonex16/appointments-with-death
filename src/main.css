@@ -37,6 +37,28 @@ div[role="main"] {
   width: auto;
 }
 
+.calendar-month-today-button {
+  position: relative;
+  width: 100% !important;
+}
+
+.calendar-month-today-button > span {
+  opacity: 0;
+}
+
+.calendar-month-today-button::after {
+  content: 'This Month';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-50%);
+}
+
+.calendar-month-clear-button {
+  display: none;
+}
+
+
 .table-appointments-container {
   width: 70vw;
 }

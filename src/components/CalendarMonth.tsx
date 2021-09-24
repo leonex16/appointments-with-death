@@ -16,6 +16,9 @@ export const CalendarMonth = (props: CalendarMonthProps) => {
       onChange={(e: any) => setMonth(e.value)}
       view="month"
       yearRange="2020:2025"
+      showButtonBar
+      todayButtonClassName="calendar-month-today-button"
+      clearButtonClassName="calendar-month-clear-button"
     />
   )
 }
