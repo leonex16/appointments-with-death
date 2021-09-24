@@ -1,9 +1,11 @@
 {
-  "name": "frontend",
-  "version": "0.0.0",
+  "name": "appointment-with-death",
+  "homepage": "https://github.com/leonex16/appointments-with-death",
+  "version": "0.1.0",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
+    "deploy": "gh-pages -d ./dist",
     "serve": "vite preview"
   },
   "dependencies": {
